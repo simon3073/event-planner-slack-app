@@ -11,7 +11,7 @@ const currentTime = new Date().toTimeString();
 			channel: '#general',
 			text: `The current time is ${currentTime}`
 		});
-		console.log('Message posted!');
+		console.log('Message - posted!');
 	} catch (error) {
 		console.log(error);
 	}

@@ -46,8 +46,9 @@ const getUserName = async (userID, client) => {
 	}
 };
 
-// Function to save modal submission data to a external source
-const saveDataToDB = (submissionData) => {};
+/* Function to save modal submission data to a external source
+const saveDataToExt() => {}
+*/
 
 // Event function when a new user joins the channel
 app.event('member_joined_channel', async ({ event }) => {
@@ -103,7 +104,7 @@ app.view('party-details', async ({ ack, body, view, client, logger }) => {
 	const submissionData = await getViewData(userRealName, view.state.values);
 
 	// Save Submission Data to a DB
-	saveDataToDB(submissionData);
+	// saveDataToExt(submissionData); <-- add to external source
 
 	// Send a message to the channels
 	try {

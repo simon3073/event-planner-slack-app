@@ -1,16 +1,15 @@
-## JS Pokedex Application
+# Event-Planning Slack App
 
-Application that uses an API call to fetch and list Pokemons. Selecting or searching for Pokemons reveals basic details and images.
+## About
 
+---
+
+Application to help the organization of company-wide events easier company’s internal events.
+
+This app listens for new team members joining a channel,they’ll be asked to click a button, which will generate a form asking key questions about the attendees of the party. The contents of the form are then be posted to a separate channel, administered by the internal events team.
+
+This app can be on a self-managed server or on a cloud provider like AWS, Heroku or Google Compute.
 <br/>
-
-## How to use
-
-- Scroll through list and select on Pokemon to reveal more details
-- Use search bar to look for specific Pokemon
-- Use navigational buttons in pop up to work through the Pokemon list
-
-<br />
 
 _Developer: Simon Bertoli_
 
@@ -18,19 +17,29 @@ _Developer: Simon Bertoli_
 
 ## Project Dependencies
 
-- HTML5
-- CSS
-- Javascript / jQuery
-- promise-polyfill
-- Bootstrap 5
+- Bolt-JS
+- NodeJS
+- Heroku
+- Javascript
 
 <br/>
 
 ## APIs Used
 
-The Pokémon API - https://pokeapi.co/api/v2/pokemon/
+The SLACK API - https://api.slack.com/
 
 <br/>
+
+## Tutorials
+
+### Bolt for Javascript
+
+A JavaScript framework to build Slack apps in Slack<br>
+https://github.com/SlackAPI/bolt-js
+
+### Slack API Tutorials
+
+https://api.slack.com/tutorials
 
 ---
 

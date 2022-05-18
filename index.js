@@ -24,13 +24,13 @@ const getViewData = async (username, viewData) => {
 	keys.forEach(function (key) {
 		let values = viewData[key];
 		if (values.hasOwnProperty('fun-facts')) {
-			userInfo.funfacts = values['fun-facts'].value;
+			submissionInfo.funfacts = values['fun-facts'].value;
 		}
 		if (values.hasOwnProperty('location')) {
-			userInfo.location = values['location'].selected_option.value;
+			submissionInfo.location = values['location'].selected_option.value;
 		}
 		if (values.hasOwnProperty('T-Shirt')) {
-			userInfo.size = values['T-Shirt'].selected_option.value;
+			submissionInfo.size = values['T-Shirt'].selected_option.value;
 		}
 	});
 	return submissionInfo;
@@ -126,7 +126,7 @@ app.view('party-details', async ({ ack, body, view, client, logger }) => {
 });
 
 // Event function when user cancels the modal without submitting
-app.view({ callback_id: 'party-details', type: 'view_closed' }, async ({ view, logger, client }) => {
+app.view({ callback_id: 'party-details', type: 'view_closed' }, async ({ body, logger, client }) => {
 	let userRealName = await getUserName(body.user.id, client);
 	try {
 		// Ask user to re-consider filling out the form

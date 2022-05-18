@@ -1,14 +1,16 @@
 {
-	"name": "slack_app_tutorial",
+	"name": "event-planning slack app",
 	"version": "1.0.0",
-	"description": "testing",
+	"description": "   ",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo  \"Error: no test specified\" && exit 1"
 	},
-	"author": "",
+	"author": "Simon Bertoli",
 	"license": "ISC",
 	"dependencies": {
-		"@slack/web-api": "^6.7.1"
+		"@slack/bolt": "^3.11.1",
+		"dotenv": "^16.0.1",
+		"nodemon": "^2.0.16"
 	}
 }

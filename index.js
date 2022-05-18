@@ -1,7 +1,7 @@
 const { App } = require('@slack/bolt');
 const modalViewTemplate = require('./modalView');
 
-require('dotenv').config();
+// require('dotenv').config(); <-- for local testing
 
 // Initializes your app with your bot token and signing secret
 const app = new App({

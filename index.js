@@ -1,7 +1,7 @@
 const { App } = require('@slack/bolt');
 const modalViewTemplate = require('./modalView');
 
-// require('dotenv').config(); <-- for local testing
+// require('dotenv').config(); // <-- for local testing
 
 // Initializes your app with your bot token and signing secret
 const app = new App({
@@ -52,7 +52,8 @@ const saveDataToExt() => {}
 
 // Event function when a new user joins the channel
 app.event('member_joined_channel', async ({ event }) => {
-	if (event.channel === process.env.SLACK_WELCOME_CHANNEL) { // if the channel a member has joined is the defined Welcome Channel
+	if (event.channel === process.env.SLACK_WELCOME_CHANNEL) {
+		// if the channel a member has joined is the defined Welcome Channel
 		app.message('', async ({ message, say }) => {
 			// send a message for the new member
 			await say({
@@ -125,8 +126,8 @@ app.view('party-details', async ({ ack, body, view, client, logger }) => {
 });
 
 // Event function when user cancels the modal without submitting
-app.view({ callback_id: 'party-details', type: 'view_closed' }, ({ view, logger, client }) => {
-	const userRealName = await getUserName(body.user.id, client);
+app.view({ callback_id: 'party-details', type: 'view_closed' }, async ({ view, logger, client }) => {
+	let userRealName = await getUserName(body.user.id, client);
 	try {
 		// Ask user to re-consider filling out the form
 		client.chat.postMessage({

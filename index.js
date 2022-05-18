@@ -17,9 +17,10 @@ const app = new App({
 	console.log(`Slack Bolt app is running on port ${port}!`);
 })();
 
+// Function to return a data object from the modal submission for display and to save to a DB
 const getViewData = async (username, viewData) => {
-	let userInfo = {};
-	var keys = Object.keys(viewData); // ['key1', 'key2']
+	let submissionInfo = {}; // define object to add submission data to
+	const keys = Object.keys(viewData);
 	keys.forEach(function (key) {
 		let values = viewData[key];
 		if (values.hasOwnProperty('fun-facts')) {
@@ -32,11 +33,12 @@ const getViewData = async (username, viewData) => {
 			userInfo.size = values['T-Shirt'].selected_option.value;
 		}
 	});
-	return userInfo;
+	return submissionInfo;
 };
 
+// Function to get the username of the member open the modal using the SLACK API
 const getUserName = async (userID, client) => {
-	let userData = await client.users.info({ user: userID });
+	const userData = await client.users.info({ user: userID });
 	try {
 		return userData.user.real_name;
 	} catch (error) {
@@ -44,10 +46,14 @@ const getUserName = async (userID, client) => {
 	}
 };
 
-app.event('member_joined_channel', async ({ event, body }) => {
-	if (event.channel === process.env.SLACK_WELCOME_CHANNEL) {
+// Function to save modal submission data to a external source
+const saveDataToDB = (submissionData) => {};
+
+// Event function when a new user joins the channel
+app.event('member_joined_channel', async ({ event }) => {
+	if (event.channel === process.env.SLACK_WELCOME_CHANNEL) { // if the channel a member has joined is the defined Welcome Channel
 		app.message('', async ({ message, say }) => {
-			// Welcome message for the new employee
+			// send a message for the new member
 			await say({
 				blocks: [
 					{
@@ -72,23 +78,34 @@ app.event('member_joined_channel', async ({ event, body }) => {
 	}
 });
 
+// Event function on click of the welcome message button
 app.action('partymodal_open', async ({ body, ack, client, logger }) => {
-	await ack();
-	let userRealName = await getUserName(body.user.id, client);
+	await ack(); // Acknowledge the button_click event
+
+	// get user name from SLACK API
+	const userRealName = await getUserName(body.user.id, client);
+
+	// set up the modal by using the template >> sending trigger_id and username
 	const modalTemplate = modalViewTemplate(body.trigger_id, userRealName);
 	try {
-		const result = await client.views.open(modalTemplate);
+		await client.views.open(modalTemplate); // open the modal
 	} catch (error) {
 		logger.error(error);
 	}
 });
 
+// Event function on submission of modal
 app.view('party-details', async ({ ack, body, view, client, logger }) => {
 	// get user name from SLACK API
-	let userRealName = await getUserName(body.user.id, client);
-	let submissionData = await getViewData(userRealName, view.state.values);
+	const userRealName = await getUserName(body.user.id, client);
 
-	// add notifications to the channels
+	// format the submission data into a dedicated object
+	const submissionData = await getViewData(userRealName, view.state.values);
+
+	// Save Submission Data to a DB
+	saveDataToDB(submissionData);
+
+	// Send a message to the channels
 	try {
 		// Let the party team channel know of the form submission!
 		await client.chat.postMessage({
@@ -106,14 +123,14 @@ app.view('party-details', async ({ ack, body, view, client, logger }) => {
 	await ack(); // Acknowledge the view_submission request
 });
 
-// TODO to change to Direct Message
+// Event function when user cancels the modal without submitting
 app.view({ callback_id: 'party-details', type: 'view_closed' }, ({ view, logger, client }) => {
-	//let userRealName = await getUserName(body.user.id);
+	const userRealName = await getUserName(body.user.id, client);
 	try {
 		// Ask user to re-consider filling out the form
 		client.chat.postMessage({
 			channel: process.env.SLACK_WELCOME_CHANNEL,
-			text: `Make sure you take a chance to fill out the form so we can make sure we have the best party ever! \nThanks!`
+			text: `${userRealName}, make sure you take the time to fill out the form so we can make sure we have the best party ever! \nThanks!`
 		});
 	} catch (error) {
 		logger.error(error);

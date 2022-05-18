@@ -1,3 +1,5 @@
+// Modal template - receives trigger_id and username to populate a template object for display
+
 module.exports = (triggerId, userName) => {
 	const modalView = {
 		trigger_id: triggerId,

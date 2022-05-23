@@ -38,8 +38,8 @@ const getViewData = async (username, viewData) => {
 
 // Function to get the username of the member open the modal using the SLACK API
 const getUserName = async (userID, client) => {
-	const userData = await client.users.info({ user: userID });
 	try {
+		const userData = await client.users.info({ user: userID });
 		return userData.user.real_name;
 	} catch (error) {
 		logger.error(error);
@@ -49,6 +49,11 @@ const getUserName = async (userID, client) => {
 /* Function to save modal submission data to a external source
 const saveDataToExt() => {}
 */
+
+// Welcome message
+const channelWelcomeMsg = (username) => {
+	return `Welcome to the company party channel <@${username}>, we're so excited you are here! \nPlease click the START button on the right to tell us a little more about yourself :)`;
+};
 
 // Event function when a new user joins the channel
 app.event('member_joined_channel', async ({ event }) => {
@@ -62,7 +67,7 @@ app.event('member_joined_channel', async ({ event }) => {
 						type: 'section',
 						text: {
 							type: 'mrkdwn',
-							text: `Welcome to the company party channel <@${message.user}>, we're so excited you are here! \nPlease click the START button on the right to tell us a little more about yourself :)`
+							text: channelWelcomeMsg(message.user)
 						},
 						accessory: {
 							type: 'button',
@@ -74,7 +79,7 @@ app.event('member_joined_channel', async ({ event }) => {
 						}
 					}
 				],
-				text: `Welcome to the company party channel <@${message.user}>, we're so excited you are here! Please click the START button on the right to tell us a little more about yourself :)`
+				text: channelWelcomeMsg(message.user)
 			});
 		});
 	}
@@ -82,14 +87,12 @@ app.event('member_joined_channel', async ({ event }) => {
 
 // Event function on click of the welcome message button
 app.action('partymodal_open', async ({ body, ack, client, logger }) => {
-	await ack(); // Acknowledge the button_click event
-
-	// get user name from SLACK API
-	const userRealName = await getUserName(body.user.id, client);
-
-	// set up the modal by using the template >> sending trigger_id and username
-	const modalTemplate = modalViewTemplate(body.trigger_id, userRealName);
 	try {
+		await ack(); // Acknowledge the button_click event
+		// get user name from SLACK API
+		const userRealName = await getUserName(body.user.id, client);
+		// set up the modal by using the template >> sending trigger_id and username
+		const modalTemplate = modalViewTemplate(body.trigger_id, userRealName);
 		await client.views.open(modalTemplate); // open the modal
 	} catch (error) {
 		logger.error(error);
@@ -98,17 +101,17 @@ app.action('partymodal_open', async ({ body, ack, client, logger }) => {
 
 // Event function on submission of modal
 app.view('party-details', async ({ ack, body, view, client, logger }) => {
-	// get user name from SLACK API
-	const userRealName = await getUserName(body.user.id, client);
-
-	// format the submission data into a dedicated object
-	const submissionData = await getViewData(userRealName, view.state.values);
-
-	// Save Submission Data to a DB
-	// saveDataToExt(submissionData); <-- add to external source
-
-	// Send a message to the channels
 	try {
+		// get user name from SLACK API
+		const userRealName = await getUserName(body.user.id, client);
+
+		// format the submission data into a dedicated object
+		const submissionData = await getViewData(userRealName, view.state.values);
+
+		// Save Submission Data to a DB
+		// saveDataToExt(submissionData); <-- add to external source
+
+		// Send a message to the channels
 		// Let the party team channel know of the form submission!
 		await client.chat.postMessage({
 			channel: process.env.SLACK_POST_TO_CHANNEL,
@@ -119,16 +122,17 @@ app.view('party-details', async ({ ack, body, view, client, logger }) => {
 			channel: process.env.SLACK_WELCOME_CHANNEL,
 			text: `Thanks ${userRealName} for helping us plan the best party ever! \n*Stay tuned!*`
 		});
+		await ack(); // Acknowledge the view_submission request
 	} catch (error) {
 		logger.error(error);
 	}
-	await ack(); // Acknowledge the view_submission request
 });
 
 // Event function when user cancels the modal without submitting
 app.view({ callback_id: 'party-details', type: 'view_closed' }, async ({ body, logger, client }) => {
-	let userRealName = await getUserName(body.user.id, client);
 	try {
+		let userRealName = await getUserName(body.user.id, client);
+
 		// Ask user to re-consider filling out the form
 		client.chat.postMessage({
 			channel: process.env.SLACK_WELCOME_CHANNEL,
